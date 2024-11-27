@@ -35,7 +35,7 @@ internal class PendingOrdersService(
         {
             if (product.Stock < order.Quantity)
             {
-                return;
+                continue;
             }
 
             if (product.Status == StockStatus.Available)
@@ -76,6 +76,10 @@ internal class PendingOrdersService(
             }
             else if (product.Status == StockStatus.LowStock)
             {
+                // transaction
+                // Remove pending order from collection
+                await pendingOrdersRepository.DeleteAsync(order.Id, cToken);
+
                 await lowStockOrdersService.ReserveWithManualApprovalAsync(product, order.Quantity, cToken);
             }
         }
